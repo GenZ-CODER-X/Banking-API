@@ -1,0 +1,45 @@
+from jose import jwt,JWTError
+from datetime import datetime,timedelta,timezone
+from passlib.context import CryptContext
+from .config import settings
+from fastapi import HTTPException,status,Depends
+from fastapi.security import OAuth2PasswordBearer
+from repositries.user_repositries import UserRepositry
+from schemas.login_token_schema import TokenData
+from db.database import get_db
+from sqlalchemy.orm import Session
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+pwd_context=CryptContext(schemes=["bcrypt"],deprecated="auto") 
+def hash_password(password:str):
+    return pwd_context.hash(password)
+
+def verify(plainpassword,storedpassword):
+    return pwd_context.verify(plainpassword,storedpassword)
+
+def create_access_token(user_id:int) -> str:
+    expire_time=datetime.now(timezone.utc)+timedelta(minutes=settings.access_token_expire_minutes)
+    payload = {
+    "sub": str(user_id),
+    "exp": expire_time
+}
+    token=jwt.encode(payload,settings.secret_key,algorithm=settings.algorithm)
+    return token
+
+def verify_access_token(token:str):
+    try:
+        payload=jwt.decode(token,settings.secret_key,algorithms=[settings.algorithm])
+        user_id=payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="User doesnt exsist")
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Couldnt verify the user")
+    
+    return int(user_id)
+
+def get_curent_user(db:Session=Depends(get_db),token:str=Depends(oauth2_scheme)):
+    token_data=verify_access_token(token)
+    Current_User=UserRepositry.get_user_by_user_id(db,token_data)
+    if  Current_User is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="User doesnt exsist")
+    return  Current_User
