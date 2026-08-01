@@ -1,5 +1,5 @@
 from db.database import Base
-from sqlalchemy import Column,String,Integer,PrimaryKey,text,ForeignKey,Text,TIMESTAMP,Numeric
+from sqlalchemy import Column,String,Integer,PrimaryKey,text,ForeignKey,TIMESTAMP,Numeric
 
 class Account(Base):
     __tablename__="accounts"

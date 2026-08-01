@@ -1,6 +1,8 @@
 from fastapi import HTTPException,status
 from repositries.user_repositries import UserRepositry
 from hashing import hash_password
+
+
 def register_user(db,user_details):
     exisisting_user_email=UserRepositry.get_by_email(db,user_details.email)
     exisisting_user_ph_no=UserRepositry.get_by_ph_no(db,user_details.ph_no)
@@ -14,4 +16,5 @@ def register_user(db,user_details):
     return new_user
 def new_user_confirmation_email():
     pass
+
 

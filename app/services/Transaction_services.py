@@ -1,4 +1,4 @@
-from fastapi import HTTPException,status,
+from fastapi import HTTPException,status
 from repositries.account_repositrie import Accout_repositry
 from core.security import settings
 from repositries.Transaction_repositries import Transaction_repositry

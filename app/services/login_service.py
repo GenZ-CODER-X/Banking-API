@@ -3,6 +3,7 @@ from repositries.user_repositries import UserRepositry
 from hashing import verify
 from core.security import create_access_token
 
+
 def login_user(db, login_details):
     user = UserRepositry.get_by_email(db, login_details.email)
 
@@ -18,3 +19,6 @@ def login_user(db, login_details):
         "access_token": access_token,
         "token_type": "bearer"
     }
+
+
+def refresh_token()

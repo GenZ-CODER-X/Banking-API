@@ -3,6 +3,7 @@ from sqlalchemy import Column,Integer,String,ForeignKey,text,Numeric,TIMESTAMP
 
 class Ledger(Base):
     __tablename__="ledger"
+    id=Column(Integer,primary_key=True)
     account_id=Column(Integer,ForeignKey("accounts.id"))
     transaction_id=Column(Integer,ForeignKey("transactions.id"))
     amount=Column(Numeric(12,2),nullable=False)
