@@ -18,6 +18,6 @@ class RedisRepository():
             return True
         return False
     
-    def blacklist_refresh_token(refreshtoken,user_id):
-        redis_client.set(refreshtoken,id,ex=86400)
+    def blacklist_refresh_token(self,refreshtoken,user_id):
+        redis_client.set(refreshtoken,user_id,ex=86400)
         

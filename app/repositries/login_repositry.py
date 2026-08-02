@@ -6,8 +6,9 @@ class LoginRepositry():
         User=db.query(RefreshSession).filter(RefreshSession.refresh_token_hash==refresh_token).first()
         return User
     
-    def update_refresh_token(db,User_refresh_row,new_refresh_token):
-        User_refresh_row.refresh_token_hash=new_refresh_token
+    def update_refresh_token(db,Refresh_session,new_refresh_token,new_expire_time):
+        Refresh_session.refresh_token_hash=new_refresh_token
+        Refresh_session.expires_at=new_expire_time
         
     def delete_refresh_token(db,refresh_token):
         session = db.query(RefreshSession).filter(RefreshSession.refresh_token_hash==refresh_token).first()

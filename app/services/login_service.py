@@ -40,12 +40,32 @@ def login_user(db, login_details,user_agent,ip_address):
 # 2.Then blacklist the refresh token no need of access_token due to its short time and 
 # 3.delete the refrsh token from db
 
-def logout_user(db,Current_User,refresh_token):
-    user_id=verify_refresh_token(refresh_token)
-    RedisRepository.blacklist_refresh_token(refresh_token,user_id)
-    LoginRepositry.delete_refresh_token(refresh_token)
-    db.commit()
-    return 
+def logout_user(db,refresh_token):
+    redis_repo=RedisRepository()
+    try:
+        user_id=verify_refresh_token(refresh_token)
+        is_valid = redis_repo.refresh_token_check(refresh_token)
+        if not is_valid:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Already logged out"
+            )
+        RedisRepository.blacklist_refresh_token(refresh_token,user_id)
+        refresh_session = LoginRepositry.search_refresh_token(db, refresh_token)
+        if refresh_session is None:
+            raise HTTPException(
+                status_code=401,
+                detail="Session not found"
+            )
+        LoginRepositry.delete_refresh_token(db,refresh_token)
+        db.commit()
+        return {"message":"Logout Successful"}
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail="Logout Failed")
 
 #Flow of my refresh
 #1.Verify the JWT they sent 
@@ -55,26 +75,37 @@ def logout_user(db,Current_User,refresh_token):
 #6.blacklist the token 
 
 def refresh_token(db,refresh_token):
-    user_id=verify_refresh_token(refresh_token)
-    if user_id is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail=f"login attempt failed")
-    status=RedisRepository.refresh_token_check(refresh_token)
-    if status==False:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail=f"loged out of device")
-    Current_User=LoginRepositry.search_refresh_token(db,refresh_token)
-    if Current_User is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail=f"Authentication Failed")
-    new_access_token = create_access_token(Current_User.user_id)
-    new_refresh_token=create_refresh_token(Current_User.user_id)
-    RedisRepository.blacklist_refresh_token(refresh_token,Current_User.user_id)
-    LoginRepositry.update_refresh_token(db,Current_User,new_refresh_token)
-    db.commit()
-    return {
+    redis_repo=RedisRepository()
+    try:
+        user_id=verify_refresh_token(refresh_token)
+        if user_id is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail=f"login attempt failed")
+        status=redis_repo.refresh_token_check(refresh_token)
+        if status==False:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail=f"loged out of device")
+        refresh_session=LoginRepositry.search_refresh_token(db,refresh_token)
+        if refresh_session is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail=f"Authentication Failed")
+        new_access_token = create_access_token(refresh_session.user_id)
+        new_refresh_token,new_expire_time=create_refresh_token(refresh_session.user_id)
+        redis_repo.blacklist_refresh_token(refresh_token,refresh_session.user_id)
+        LoginRepositry.update_refresh_token(db,refresh_session,new_refresh_token,new_expire_time)
+        db.commit()
+        return {
     "access_token": new_access_token,
     "refresh_token": new_refresh_token,
     "token_type": "bearer"
 }
+    except HTTPException:
+        db.rollback()
+        raise
 
+    except Exception:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="Refresh token failed"
+        )
     
 
 

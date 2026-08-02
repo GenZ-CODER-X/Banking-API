@@ -25,7 +25,7 @@ def create_access_token(user_id:int) -> str:
     "exp": expire_time
 }
     token=jwt.encode(payload,settings.secret_key,algorithm=settings.algorithm)
-    return token
+    return token,expire_time
 
 def verify_access_token(token:str):
     try:
@@ -72,5 +72,7 @@ def verify_refresh_token(token:str):
                 status_code=401,
                 detail="Invalid token type"
             )
+        return user_id
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Couldnt verify the user")
+    
