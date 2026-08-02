@@ -11,5 +11,13 @@ class RedisRepository():
     def save_response(self,idempotency_key:str,response:dict):
         value=json.dumps(response)
         redis_client.set(idempotency_key,value,ex=86400)
-
-
+    
+    def refresh_token_check(self,refresh_token):
+        response=redis_client.get(refresh_token)
+        if response is None:
+            return True
+        return False
+    
+    def blacklist_refresh_token(refreshtoken,user_id):
+        redis_client.set(refreshtoken,id,ex=86400)
+        
