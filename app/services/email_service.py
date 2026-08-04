@@ -81,3 +81,81 @@ def send_verification_email(
     finally:
         if server:
             server.quit()
+
+
+def send_verification_reset_password(
+    recipient_email: str,
+    reset_password_link: str
+):
+    message = MIMEMultipart()
+
+    message["From"] = settings.SMTP_EMAIL
+    message["To"] = recipient_email
+    message["Subject"] = "Reset the Password"
+
+    html = f"""
+<html>
+    <body style="font-family: Arial, sans-serif;">
+        <h2>🔒 Reset Your Banking API Password</h2>
+
+        <p>We received a request to reset your password.</p>
+
+        <p>Click the button below to create a new password.</p>
+
+        <a
+            href="{reset_password_link}"
+            style="
+                background:#dc2626;
+                color:white;
+                padding:12px 20px;
+                text-decoration:none;
+                border-radius:6px;
+                display:inline-block;
+            "
+        >
+            Reset Password
+        </a>
+
+        <p style="margin-top:20px;">
+            This password reset link expires in <b>15 minutes</b>.
+        </p>
+
+        <p>
+            If you didn't request a password reset, you can safely ignore this email.
+            Your password will remain unchanged.
+        </p>
+
+        <hr>
+
+        <p style="font-size:12px;color:#666;">
+            For security reasons, this link can only be used once.
+        </p>
+
+    </body>
+</html>
+"""
+    message.attach(MIMEText(html, "html"))
+    server = None
+    try:
+        server = smtplib.SMTP(
+            settings.SMTP_HOST,
+            settings.SMTP_PORT
+        )
+        server.starttls()
+        server.login(
+            settings.SMTP_EMAIL,
+            settings.SMTP_PASSWORD
+        )
+        server.sendmail(
+            from_addr=settings.SMTP_EMAIL,
+            to_addrs=recipient_email,
+            msg=message.as_string()
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to send reset_password_link: {str(e)}"
+        )
+    finally:
+        if server:
+            server.quit()

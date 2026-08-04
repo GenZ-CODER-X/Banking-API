@@ -1,8 +1,8 @@
 from fastapi import FastAPI,status,Depends,Header,Request
-from schemas.login_token_schema import Login,Token
+from schemas.login_token_schema import Login,Token,UserEmail
 from sqlalchemy.orm import Session
 from db import database
-from services import login_service
+from services import login_service,auth_services
 from core.security import get_curent_user
 
 app=FastAPI()
@@ -33,3 +33,9 @@ def refresh(db:Session=Depends(database.get_db),refresh_token:str=Header(...)):
 @app.post("/logout",status_code=status.HTTP_200_OK)
 def logout(db:Session=Depends(database.get_db),Current_user=Depends(get_curent_user),refresh_token:str=Header(...)):
     return login_service.logout_user(db,Current_user,refresh_token)
+
+@app.post("/forgot_password",status_code=status.HTTP_200_OK)
+def forgot_password(current_user_email:UserEmail,db:Session=Depends(database.get_db)):
+    return auth_services.forgot_password(db,current_user_email)
+
+

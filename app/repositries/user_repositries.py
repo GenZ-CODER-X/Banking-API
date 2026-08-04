@@ -1,3 +1,4 @@
+from fastapi import HTTPException,status
 from models.user import User
 class UserRepositry:
     def get_by_email(db,email):
@@ -32,3 +33,12 @@ class UserRepositry:
     def mark_email_verified(db,user_id):
         User=db.query(User).filter(User.id==user_id).first()
         User.is_verified=True
+
+    def reset_password(db,new_password_hashed,user_id):
+        Current_User=db.query(User).filter(User.id==user_id).first()
+        if Current_User is None:
+            raise HTTPException(
+        status_code=404,
+        detail="User not found"
+    )
+        Current_User.password_hash=new_password_hashed

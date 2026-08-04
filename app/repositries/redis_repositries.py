@@ -30,5 +30,16 @@ class RedisRepository():
         user_id=redis_client.get(f"verify_email:{verificationtoken}")
         return user_id
     
-    def delete_verification_token(self,verification_token):
-        redis_client.delete(f"verify_email:{verification_token}")
+    def delete_verification_token(self,verificationtoken):
+        redis_client.delete(f"verify_email:{verificationtoken}")
+
+    def store_password_verifcation_token(self,verifcationtoken,user_id):
+           redis_client.set(f"reset_password:{verifcationtoken}"
+                         ,user_id,ex=980)
+
+    def reset_password_token_verification(self,verificationtoken):
+        user_id=redis_client.get(f"verify_email:{verificationtoken}")
+        return user_id
+    
+    def delete_password_verification_token(self,verificationtoken):
+        redis_client.delete(f"reset_password:{verificationtoken}")

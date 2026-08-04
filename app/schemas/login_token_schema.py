@@ -10,3 +10,6 @@ class Token(BaseModel):
     
 class TokenData(BaseModel):
     sub:int
+
+class UserEmail(BaseModel):
+    email:EmailStr

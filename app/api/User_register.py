@@ -5,7 +5,7 @@ from repositries import user_repositries
 from schemas import User_schemas
 from sqlalchemy.orm import Session
 from db import database
-from services import auth_services
+from services import auth_services,email_service
 app=FastAPI()
 
 @app.post('/register',status_code=status.HTTP_201_CREATED,response_model=User_schemas.Userout)
@@ -17,4 +17,11 @@ def verify_email(
     token: str,
     db: Session = Depends(database.get_db)
 ):
-    return auth_service.verify_email(db, token)
+    return email_service.verify_email(db, token)
+
+@app.post("/reset-password")
+def reset_password(
+    request:User_schemas.ResetPassword,
+    db:Session=Depends(database.get_db)
+):
+    return auth_services.reset_password(request,db)

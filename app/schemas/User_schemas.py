@@ -12,6 +12,8 @@ class Userout(BaseModel):
     name:str
     created_at:datetime
 
-
+class ResetPassword(BaseModel):
+    token:str
+    password:str
 
 
