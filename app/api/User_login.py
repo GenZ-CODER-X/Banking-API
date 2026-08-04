@@ -5,7 +5,6 @@ from db import database
 from services import login_service
 from core.security import get_curent_user
 
-
 app=FastAPI()
 
 @app.post(

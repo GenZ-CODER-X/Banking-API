@@ -28,3 +28,7 @@ class UserRepositry:
         db.commit()
         db.refresh(new_user)
         return new_user
+    
+    def mark_email_verified(db,user_id):
+        User=db.query(User).filter(User.id==user_id).first()
+        User.is_verified=True

@@ -20,4 +20,15 @@ class RedisRepository():
     
     def blacklist_refresh_token(self,refreshtoken,user_id):
         redis_client.set(refreshtoken,user_id,ex=86400)
+    
+
+    def store_verification_token(self,verificationtoken,user_id):
+        redis_client.set(f"verify_email:{verificationtoken}"
+                         ,user_id,ex=980)
         
+    def email_token_verification(self,verificationtoken):
+        user_id=redis_client.get(f"verify_email:{verificationtoken}")
+        return user_id
+    
+    def delete_verification_token(self,verification_token):
+        redis_client.delete(f"verify_email:{verification_token}")

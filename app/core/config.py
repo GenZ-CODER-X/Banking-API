@@ -16,5 +16,10 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8"
     )
     refresh_token_expire_minutes:int
+    SMTP_HOST: str
+    SMTP_PORT: int
+    SMTP_EMAIL: str
+    SMTP_PASSWORD: str
+    BACKEND_URL: str
 
 settings=Settings()

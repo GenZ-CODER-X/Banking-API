@@ -12,4 +12,9 @@ app=FastAPI()
 def user_register(user_details:User_schemas.UserCreate,db:Session=Depends(database.get_db)):
     return auth_services.register_user(db,user_details)
     
-
+@app.get("/verify-email")
+def verify_email(
+    token: str,
+    db: Session = Depends(database.get_db)
+):
+    return auth_service.verify_email(db, token)

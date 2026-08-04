@@ -1,6 +1,6 @@
 from db.database import Base
 from sqlalchemy.sql.expression import null
-from sqlalchemy import Column,Integer,String,TIMESTAMP,text
+from sqlalchemy import Column,Integer,String,TIMESTAMP,text,Boolean
 
 class User(Base):
      __tablename__ = "users"
@@ -10,7 +10,7 @@ class User(Base):
      password_hash=Column(String,nullable=False)
      phone_number=Column(String(15),unique=True,nullable=False)
      role=Column(String,nullable=False)
-     is_verified=Column(bool,nullable=False,server_default=text('False'))
+     is_verified=Column(Boolean,nullable=False,server_default=text('false'))
      created_at=Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
      updated_at=Column(TIMESTAMP,nullable=False,server_default=text('now()'))
      
