@@ -8,7 +8,6 @@ from email_service import send_verification_email
 
 redis=RedisRepository()
 def register_user(db,user_details):
-
     exisisting_user_email=UserRepositry.get_by_email(db,user_details.email)
     exisisting_user_ph_no=UserRepositry.get_by_ph_no(db,user_details.ph_no)
     if exisisting_user_email:
@@ -82,12 +81,10 @@ def reset_password(request,db):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Passwrd reset failed"
-        
         )
     return {
         "message":"Password reset successful"
     }
-
 
 # def resend_email_verifcation(db,user_details):
 #     verifcation_token=uuid.uuid4().hex
