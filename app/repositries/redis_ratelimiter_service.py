@@ -1,5 +1,5 @@
 import json 
-from app.core.redis import redis_client
+from app.core.redis_client import redis_client
 
 class RedisRateLimiter():
     def __init__(self):
@@ -11,10 +11,6 @@ class RedisRateLimiter():
         if response is None:
             return None
         return json.loads(response)
-
-
-
-
 
     def save_rate_limit_data(self,key,previous_count,current_count,window_start):
         data={
@@ -33,7 +29,5 @@ class RedisRateLimiter():
         redis_client.delete(key)
 
 
-
-
     def execute_transactions(self,key,callback):
-
+        pass
