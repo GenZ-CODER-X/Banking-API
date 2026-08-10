@@ -1,5 +1,5 @@
 from fastapi import HTTPException,status
-from models.user import User
+from app.models.user import User
 class UserRepositry:
     def get_by_email(db,email):
         User_query=db.query(User).filter(User.email==email).first()

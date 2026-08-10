@@ -4,9 +4,9 @@ from passlib.context import CryptContext
 from .config import settings
 from fastapi import HTTPException,status,Depends
 from fastapi.security import OAuth2PasswordBearer
-from repositries.user_repositries import UserRepositry
-from schemas.login_token_schema import TokenData
-from db.database import get_db
+from app.repositries.user_repositries import UserRepositry
+from app.schemas.login_token_schema import TokenData
+from app.db.database import get_db
 from sqlalchemy.orm import Session
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

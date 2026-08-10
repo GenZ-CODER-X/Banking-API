@@ -1,11 +1,14 @@
-from fastapi import HTTPException,status
-from repositries.user_repositries import UserRepositry
-from hashing import verify
-from core.security import create_access_token,create_refresh_token,verify_refresh_token
-from repositries.redis_repositries import RedisRepository
-from repositries.login_repositry import LoginRepositry
+from fastapi import HTTPException, status
 
-
+from app.repositries.user_repositries import UserRepositry
+from app.services.hashing import verify
+from app.core.security import (
+    create_access_token,
+    create_refresh_token,
+    verify_refresh_token
+)
+from app.repositries.redis_repositries import RedisRepository
+from app.repositries.login_repositry import LoginRepositry
 def login_user(db, login_details,user_agent,ip_address):
     user = UserRepositry.get_by_email(db, login_details.email)
 

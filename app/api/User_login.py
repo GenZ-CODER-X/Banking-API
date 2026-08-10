@@ -1,13 +1,16 @@
-from fastapi import FastAPI,status,Depends,Header,Request
-from schemas.login_token_schema import Login,Token,UserEmail
+from fastapi import APIRouter, status, Depends, Header, Request, HTTPException
+from app.schemas.login_token_schema import Login, Token, UserEmail
 from sqlalchemy.orm import Session
-from db import database
-from services import login_service,auth_services
-from core.security import get_curent_user
+from app.db import database
+from app.services import login_service,auth_services
+from app.core.security import get_curent_user
+from types import SimpleNamespace
+from app.services import rate_limiter_service
 
-app=FastAPI()
 
-@app.post(
+router = APIRouter()
+
+@router.post(
     "/login",
     status_code=status.HTTP_202_ACCEPTED,
     response_model=Token
@@ -20,21 +23,31 @@ def login(
     user_agent = request.headers.get("User-Agent")
     ip_address = request.client.host
 
+    key_string_data=SimpleNamespace(
+        key="ip",
+        value=ip_address
+    )
+    allowed=rate_limiter_service.is_request_allowed(
+        "login",key_string_data
+    )
+    if not allowed:
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS,detail=f"Too many Requests")
     return login_service.login_user(
     db,
     user_credentials,
     user_agent,
     ip_address,
 )
-@app.post('/refresh',status_code=status.HTTP_200_OK,response_model=Token)
+
+@router.post('/refresh',status_code=status.HTTP_200_OK,response_model=Token)
 def refresh(db:Session=Depends(database.get_db),refresh_token:str=Header(...)):
     return login_service.refresh_token(db,refresh_token)
 
-@app.post("/logout",status_code=status.HTTP_200_OK)
+@router.post("/logout",status_code=status.HTTP_200_OK)
 def logout(db:Session=Depends(database.get_db),Current_user=Depends(get_curent_user),refresh_token:str=Header(...)):
     return login_service.logout_user(db,Current_user,refresh_token)
 
-@app.post("/forgot_password",status_code=status.HTTP_200_OK)
+@router.post("/forgot_password",status_code=status.HTTP_200_OK)
 def forgot_password(current_user_email:UserEmail,db:Session=Depends(database.get_db)):
     return auth_services.forgot_password(db,current_user_email)
 

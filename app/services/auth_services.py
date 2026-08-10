@@ -1,10 +1,9 @@
-from fastapi import HTTPException,status
-from repositries.user_repositries import UserRepositry
-from hashing import hash_password
+from fastapi import HTTPException, status
+from app.repositries.user_repositries import UserRepositry
+from app.services.hashing import hash_password
 import uuid
-from repositries.redis_repositries import RedisRepository
-from email_service import send_verification_email
-
+from app.repositries.redis_repositries import RedisRepository
+from app.services.email_service import send_verification_email
 
 redis=RedisRepository()
 def register_user(db,user_details):

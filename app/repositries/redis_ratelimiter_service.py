@@ -1,5 +1,6 @@
 import json 
 from app.core.redis_client import redis_client
+import redis
 
 class RedisRateLimiter():
     def __init__(self):
@@ -24,10 +25,40 @@ class RedisRateLimiter():
             ex=self.KEY_TTL
         )
 
-
     def delete_rate_limit_data(key):
         redis_client.delete(key)
 
+    def execute_transaction(self, key, callback):
+        while True:
+            pipe = redis_client.pipeline()
 
-    def execute_transactions(self,key,callback):
-        pass
+            try:
+                pipe.watch(key)
+
+                value = pipe.get(key)
+    
+                if value is not None:
+                    value = json.loads(value)
+
+                allowed, new_value = callback(value)
+
+                if not allowed:
+                    return False
+
+                pipe.multi()
+
+                pipe.set(
+                    key,
+                    json.dumps(new_value),
+                    ex=self.KEY_TTL
+                )
+
+                pipe.execute()
+
+                return True
+
+            except redis.WatchError:
+                continue
+
+            finally:
+                pipe.reset()

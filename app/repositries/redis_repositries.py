@@ -1,5 +1,5 @@
 import json 
-from app.core.redis import redis_client
+from app.core.redis_client import redis_client
 
 class RedisRepository():
     def get_response(self,idempotency_key:str):

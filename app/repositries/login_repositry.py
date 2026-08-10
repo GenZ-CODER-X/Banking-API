@@ -1,4 +1,4 @@
-from models.refresh_sessions import RefreshSession
+from app.models.refresh_sessions import RefreshSession
 from sqlalchemy import text
 
 class LoginRepositry():
