@@ -1,4 +1,4 @@
-from models.accounts import Account
+from app.models.accounts import Account
 from sqlalchemy import text
 
 class Accout_repositry():

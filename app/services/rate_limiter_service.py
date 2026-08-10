@@ -8,7 +8,7 @@ def generate_key(endpoint,key_string_data):
     return key
 
 def is_request_allowed(endpoint, key_string_data):
-    limit = 2
+    limit = 20
     key = generate_key(endpoint, key_string_data)
     def rate_limit_callback_fxn(rate_limiter_response):
         if rate_limiter_response is None:

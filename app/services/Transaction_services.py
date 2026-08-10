@@ -66,8 +66,15 @@ def transaction(db,Current_user,transaction_details,idempotency_key):
     redis_repository.save_response(idempotency_key,Transaction_response)
     return Transaction_response
 
+def get_transaction_history(db,user_id):
+    Transactions=Transaction_repositry.get_transaction_for_user(db,user_id)
+    if Transactions is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="User is not registered")
+    if not Transactions:
+        return "No transactions are Done by the User"
+    else:
+        return Transactions
 
 
-    
     
     

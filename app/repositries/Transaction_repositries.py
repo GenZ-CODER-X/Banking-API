@@ -1,6 +1,8 @@
 from models.transactions import Transaction
+from models.accounts import Account
 from sqlalchemy import text
 from models.ledger import Ledger
+from sqlalchemy import or_
 
 class Transaction_repositry():
     def transaction_id(db):
@@ -30,4 +32,13 @@ class Transaction_repositry():
         transaction_query=db.query(Transaction).filter(Transaction.id==transaction_id).first()
         transaction_query.update(Transaction.status=="Successful")
         
-    
+    def get_transactions_for_user(db,user_id):
+        User_acc=db.query(Account).filter(Account.user_id==user_id).first()
+        if User_acc is None:
+            return None
+        User_acc_id=User_acc.id
+        transactions_of_user=db.query(Transaction).filter(or_(Transaction.Sender_ACC_id==User_acc_id ,
+                                                              Transaction.Receiver_ACC_id==User_acc_id)).all()
+        if transactions_of_user is None:
+            return 1
+        return transactions_of_user
