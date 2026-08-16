@@ -1,5 +1,5 @@
 from app.models.accounts import Account
-from sqlalchemy import text
+from sqlalchemy import text,or_
 
 class Accout_repositry():
     def get_account_by_user_id(db,user_id):
@@ -30,5 +30,27 @@ class Accout_repositry():
       .with_for_update()
       .first()
 )
+    def get_user_account_for_update(db, user_id):
+        return (
+        db.query(Account)
+        .filter(Account.user_id == user_id)
+        .with_for_update()
+        .first()
+    )
+
+    def get_accounts_for_transfer(db, user_id, receiver_acc_no):
+        accounts = (
+            db.query(Account)
+            .filter(
+                or_(
+                    Account.user_id == user_id,
+                    Account.account_number == receiver_acc_no
+                )
+            )
+            .order_by(Account.id)
+            .with_for_update()
+            .all()
+        )
+        return accounts
 
 

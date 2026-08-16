@@ -14,20 +14,32 @@ def transaction(db,Current_user,transaction_details,idempotency_key):
     try:
         if transaction_details.amount<=0:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=f"The amount trying to send is invalid")
-        sender_acc=Accout_repositry.get_account_for_update(db,Current_user.user_id)
+        accounts = Accout_repositry.get_accounts_for_transfer(
+    db,
+    Current_user.user_id,
+    transaction_details.Receiver_acc_no
+)
+        if len(accounts) != 2:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Sender or receiver account not found"
+            )
+        sender_acc = next(
+    account for account in accounts
+    if account.user_id == Current_user.user_id
+)
+        receiver_acc = next(
+            account for account in accounts
+            if account.account_number == transaction_details.Receiver_acc_no
+        )
         if sender_acc.status=="Frozen":
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=f"Your account is freezed")
         if sender_acc.balance<transaction_details.amount:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=F"Balance is insuffiecient")
-        receiver_acc=Accout_repositry.get_account_for_update(db,transaction_details.Receiver_acc_no)
-        if receiver_acc is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"Receiver not found")
         if receiver_acc.status=="Frozen":
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail=f"The receiver acc is frozen")
-
         if sender_acc.id==receiver_acc.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail=f"Cant transfer to the same user")
-
         balance_sender=sender_acc.balance-transaction_details.amount
         balance_receiver=receiver_acc.balance+transaction_details.amount
         Transaction_repositry.balance_updated(db,balance_sender,sender_acc)
@@ -58,6 +70,10 @@ def transaction(db,Current_user,transaction_details,idempotency_key):
         "action":"Transfer of Amount",
         "description":transaction_details.description,
     }
+        Audit_repositry.create_audit(
+    db,
+    Audit_entry_details
+)
         db.commit()
     except HTTPException:
         db.rollback()
