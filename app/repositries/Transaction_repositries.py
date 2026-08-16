@@ -1,8 +1,7 @@
 from app.models.transactions import Transaction
 from app.models.accounts import Account
-from sqlalchemy import text
+from sqlalchemy import text,func,or_
 from app.models.ledger import Ledger
-from sqlalchemy import or_
 from sqlalchemy.orm import aliased
 
 class Transaction_repositry():
@@ -18,11 +17,11 @@ class Transaction_repositry():
         db.flush()
         return transanction_entry_query
     
-    def ledger_entry(db,ledger_entry,transaction_type,account):
-        ledger_entry["transaction_type"]=transaction_type
-        if transaction_type=="DEBIT":
-            ledger_entry["account_id"]=account.id
-        ledger_entry_query=Ledger(**ledger_entry)
+    def ledger_entry(db, ledger_entry, transaction_type, account):
+        ledger_entry["transaction_type"] = transaction_type
+        ledger_entry["account_id"] = account.id
+
+        ledger_entry_query = Ledger(**ledger_entry)
         db.add(ledger_entry_query)
 
     def balance_updated(db,amount,Account):
@@ -44,6 +43,8 @@ class Transaction_repositry():
     .join(
         SenderAccount,
         Transaction.Sender_ACC_id == SenderAccount.id
+    ).join(
+        ReceiverAccount,Transaction.Receiver_ACC_id==ReceiverAccount.id
     )
 )
         transactions_of_user=db.query(Transaction).filter(or_(Transaction.Sender_ACC_id==User_acc_id ,
@@ -51,3 +52,18 @@ class Transaction_repositry():
         if transactions_of_user is None:
             return 1
         return transactions_of_user
+    
+    def ledger_data(db):
+        total_credit = (
+            db.query(func.sum(Ledger.amount))
+            .filter(Ledger.transaction_type == "CREDIT")
+            .scalar()
+        )
+
+        total_debit = (
+            db.query(func.sum(Ledger.amount))
+            .filter(Ledger.transaction_type == "DEBIT")
+            .scalar()
+        )
+
+        return total_debit == total_credit

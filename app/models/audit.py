@@ -10,7 +10,8 @@ class Audit(Base):
     )
     transaction_id = Column(
         Integer,
-        ForeignKey("Transactions.id", ondelete="CASCADE")
+        ForeignKey("Transactions.id", ondelete="CASCADE"),
+        nullable=True
     )
     action = Column(String, nullable=False)
     description = Column(String)

@@ -12,4 +12,4 @@ def transaction(transaction_details:Transaction,db:Session=Depends(get_db),Curre
 
 @app.get("/transactions_history",response_model=TransactionHistoryResponse)
 def transactions_history(db:Session=Depends(get_db),Current_user=Depends(get_curent_user)):
-    return get_transaction_history(db,Current_user.id)
+    return get_transaction_history(db,Current_user)

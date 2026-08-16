@@ -3,11 +3,11 @@ from datetime import datetime
 from decimal import Decimal
 
 class Transaction(BaseModel):
-    amount:float
+    amount:Decimal
     Receiver_acc_no:str
     description:str
 class Transaction_Response(BaseModel):
-    amount:float
+    amount:Decimal
     Transaction_Ref:str
     status:str
 

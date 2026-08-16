@@ -23,10 +23,10 @@ class Accout_repositry():
         return new_account_query
     
     #We created this to avoid race condition by using row locking
-    def get_account_for_update(db,user_id):
+    def get_account_for_update(db,acc_no):
         return (
         db.query(Account)
-      .filter(Account.user_id == user_id)
+      .filter(Account.account_number == acc_no)
       .with_for_update()
       .first()
 )
