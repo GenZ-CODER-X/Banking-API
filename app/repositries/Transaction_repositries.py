@@ -1,17 +1,17 @@
-from models.transactions import Transaction
-from models.accounts import Account
+from app.models.transactions import Transaction
+from app.models.accounts import Account
 from sqlalchemy import text
-from models.ledger import Ledger
+from app.models.ledger import Ledger
 from sqlalchemy import or_
+from sqlalchemy.orm import aliased
 
 class Transaction_repositry():
     def transaction_id(db):
         transaction_id = db.execute(
     text("SELECT nextval('transaction_number_sequence')")
 ).scalar_one()
-        
         return transaction_id
-
+    
     def transaction_entry(db,transaction_details):
         transanction_entry_query=Transaction(**transaction_details)
         db.add(transanction_entry_query)
@@ -37,6 +37,15 @@ class Transaction_repositry():
         if User_acc is None:
             return None
         User_acc_id=User_acc.id
+        SenderAccount = aliased(Account)
+        ReceiverAccount = aliased(Account)
+        transactions = (
+    db.query(Transaction)
+    .join(
+        SenderAccount,
+        Transaction.Sender_ACC_id == SenderAccount.id
+    )
+)
         transactions_of_user=db.query(Transaction).filter(or_(Transaction.Sender_ACC_id==User_acc_id ,
                                                               Transaction.Receiver_ACC_id==User_acc_id)).all()
         if transactions_of_user is None:

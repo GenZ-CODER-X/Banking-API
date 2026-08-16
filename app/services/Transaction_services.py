@@ -71,7 +71,7 @@ def get_transaction_history(db,user_id):
     if Transactions is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="User is not registered")
     if not Transactions:
-        return "No transactions are Done by the User"
+        return []
     else:
         return Transactions
 

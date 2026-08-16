@@ -14,8 +14,9 @@ class Transaction_Response(BaseModel):
 class TransactionHistoryResponse(BaseModel):
     Transaction_Ref:str
     amount:Decimal
-    sender_account:str
-    receiver_account:str
+    sender_account_no:str
+    receiver_account_no:str
     status:str
     description:str | None = None
     created_at:datetime
+
