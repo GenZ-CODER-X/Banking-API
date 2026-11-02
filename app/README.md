@@ -6,7 +6,7 @@ A production-style banking backend built with **FastAPI, PostgreSQL, SQLAlchemy,
 
 ## 🧭 Architecture
 
-![Banking API Architecture](architecture.png)
+![Banking API Architecture](Banking API System Architecture.png)
 
 ### Core transfer flow
 
